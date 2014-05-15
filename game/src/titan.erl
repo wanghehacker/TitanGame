@@ -15,7 +15,12 @@
 -export([gateway_start/0,
          gateway_stop/0,
          server_start/0,
-         server_stop/0]).
+         server_stop/0,
+         server_remove/0,
+         server_safe_quit/1,
+         server_hot_fix/1,
+         info/0,
+         init_db/1]).
 
 -define(GATEWAY_APPS,[sasl,gateway]).
 -define(SERVER_APPS,[sasl,server]).
@@ -50,6 +55,55 @@ server_stop()->
   ok = stop_applications(?SERVER_APPS),
   erlang:halt().
 
+%%撤下节点
+server_remove()->
+  catch gen_server:cast(mod_kernel,{set_load,99999999999}),
+  %%TODO 登录模块
+%%   ok = mod_login:kick_all(),
+  timer:sleep(30*1000),
+  ok = stop_applications(?SERVER_APPS),
+  erlang:halt().
+
+%%脚本执行safe_quit
+server_safe_quit([GateWay])->
+  catch net_adm:ping(GateWay),
+  rpc:eval_everywhere([GateWay], misc_admin, safe_quit, [[]]),
+  timer:sleep(30*1000),
+  rpc:eval_everywhere([GateWay], erlang, halt, []),
+  timer:sleep(10*1000),
+  erlang:halt(),
+  ok.
+
+%%脚本执行热更新
+server_hot_fix([GateWay])->
+  catch net_adm:ping(GateWay),
+  rpc:eval_everywhere([GateWay], u, c, [20]),
+  rpc:eval_everywhere([GateWay], u, u, [20]),
+  timer:sleep(5*1000),
+  erlang:halt(),
+  ok.
+
+info() ->
+  SchedId      = erlang:system_info(scheduler_id),
+  SchedNum     = erlang:system_info(schedulers),
+  ProcCount    = erlang:system_info(process_count),
+  ProcLimit    = erlang:system_info(process_limit),
+  ProcMemUsed  = erlang:memory(processes_used),
+  ProcMemAlloc = erlang:memory(processes),
+  MemTot       = erlang:memory(total),
+  io:format( "abormal termination:
+                       ~n   Scheduler id:                         ~p
+                       ~n   Num scheduler:                        ~p
+                       ~n   Process count:                        ~p
+                       ~n   Process limit:                        ~p
+                       ~n   Memory used by erlang processes:      ~p
+                       ~n   Memory allocated by erlang processes: ~p
+                       ~n   The total amount of memory allocated: ~p
+                       ~n",
+    [SchedId, SchedNum, ProcCount, ProcLimit,
+      ProcMemUsed, ProcMemAlloc, MemTot]),
+  ok.
+
 
 manage_applications(Iterate,Do,Undo,SkipError,ErrorTag,Apps)->
   Iterate(fun(App,Acc)->
@@ -79,6 +133,63 @@ stop_applications(Apps)->
                       not_started,
                       cannot_stop_application,
                       Apps).
+
+
+init_db(App)->
+  case ?DB_MODULE == db_mysql of
+    true->
+      init_mysql(App);
+    _->
+      init_mongo(App),%%加载主数据库
+      init_log_mongo(App),%%加载日志数据库
+      init_slave_mongo(App)
+  end.
+
+%%mysql数据库连接初始化
+init_mysql(App)->
+  [Host,Port,User,Password,DB,Encode] = config:get_mysql_config(App),
+  mysql:start_link(?DB_POOL,Host,Port,User,Password,DB,fun(_,_,_,_)->ok end,Encode),
+  mysql:connect(?DB_POOL,Host,Port,User,Password,DB,Encode,true),
+  misc:write_system_info({self(),mysql},mysql,{Host,Port,User,DB,Encode}),
+  ok.
+
+%%mongo数据库连接初始化
+init_mongo(App)->
+  try
+    [PoolId,Host,Port,DB,EmongoSize] = config:get_mongo_config(App),
+    emongo_sup:start_link(),
+    emongo_app:initialize_pools([PoolId,Host,Port,DB,EmongoSize]),
+    misc:write_system_info({self(),mongo},mongo,{PoolId,Host,Port,DB,EmongoSize}),
+    ok
+  catch
+    _:_ -> mongo_config_error
+  end.
+
+%%mongo 日志库连接初始化
+init_log_mongo(App) ->
+  try
+    [PoolId, Host, Port, DB, EmongoSize] = config:get_log_mongo_config(App),
+    emongo_sup:start_link(),
+    emongo_app:initialize_pools([PoolId, Host, Port, DB, EmongoSize]),
+    misc:write_system_info({self(),mongo}, mongo, {PoolId, Host, Port, DB, EmongoSize}),
+    ok
+  catch
+    _:_ -> mongo_config_error
+  end.
+
+%% monogo从数据库连接初始化
+init_slave_mongo(App) ->
+  try
+    [PoolId, Host, Port, DB, EmongoSize] = config:get_slave_mongo_config(App),
+    emongo_sup:start_link(),
+    emongo_app:initialize_pools([PoolId, Host, Port, DB, EmongoSize]),
+    misc:write_system_info({self(),mongo_slave}, mongo_slave, {PoolId, Host, Port, DB, EmongoSize}),
+    ok
+  catch
+    _:_ -> init_mongo(App)%%没有配置从数据库就调用主数据库
+  end.
+
+
 
 
 
