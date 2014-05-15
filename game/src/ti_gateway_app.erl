@@ -12,8 +12,8 @@
 -behaviour(application).
 
 %% Application callbacks
--export([start/2,
-  stop/1]).
+-export([start/2,stop/1]).
+-include("common.hrl").
 
 %%%===================================================================
 %%% Application callbacks
@@ -30,18 +30,22 @@
 %%
 %% @end
 %%--------------------------------------------------------------------
--spec(start(StartType :: normal | {takeover, node()} | {failover, node()},
-    StartArgs :: term()) ->
-  {ok, pid()} |
-  {ok, pid(), State :: term()} |
-  {error, Reason :: term()}).
 start(_StartType, _StartArgs) ->
-  case 'TopSupervisor':start_link() of
-    {ok, Pid} ->
-      {ok, Pid};
-    Error ->
-      Error
-  end.
+  ets:new(?ETS_SYSTEM_INFO,[set,public,named_table,?ETSRC,?ETSWC]),
+  ets:new(?ETS_MONITOR_PID,[set,public,named_table,?ETSRC,?ETSWC]),
+  ets:new(?ETS_STAT_SOCKET,[set,public,named_table,?ETSRC,?ETSWC]),
+  ets:new(?ETS_STAT_DB,[set,public,named_table,?ETSRC,?ETSWC]),
+
+  [Port,Node_id,_Acceptor_num,_Max_connections] = config:get_tcp_listener(gateway),
+  [Ip] = config:get_tcp_listener_ip(gateway),
+  Log_level = config:get_log_level(gateway),
+  Log_level:set(tool:to_integer(Log_level)),
+
+  titan:init_db(gateway),
+  timer:apply_after(5000,db_agent,init_player_online_flag,[]),
+  ti_gateway_sup:start_link([Ip,tool:to_integer(Port),tool:to_integer(Node_id)]),
+  %%TODO
+  %%时间生成
 
 %%--------------------------------------------------------------------
 %% @private
@@ -52,7 +56,6 @@ start(_StartType, _StartArgs) ->
 %%
 %% @end
 %%--------------------------------------------------------------------
--spec(stop(State :: term()) -> term()).
 stop(_State) ->
   ok.
 

@@ -15,6 +15,13 @@
 %%全部导出
 -compile(export_all).
 
+%% 获取 .config里的配置信息
+get_log_level(App) ->
+  case application:get_env(App, log_level) of
+    {ok, Log_level} -> Log_level;
+    _ -> 3
+  end.
+
 get_mysql_config(App) ->
   case application:get_env(App, mysql_config) of
     {ok, false} -> throw(undefined);
@@ -66,4 +73,34 @@ get_slave_mongo_config(App) ->
       {_, EmongoDatabase} = lists:keyfind(emongoDatabase, 1, Emongo_config),
       [PoolId, EmongoHost, EmongoPort, EmongoDatabase, EmongoSize];
     undefined -> get_mongo_config(App)
+  end.
+
+
+get_tcp_listener(App) ->
+  case application:get_env(App, tcp_listener) of
+    {ok, false} -> throw(undefined);
+    {ok, Tcp_listener} ->
+      try
+        {_, Port} = lists:keyfind(port, 1, Tcp_listener),
+        {_, Node_id} = lists:keyfind(node_id, 1, Tcp_listener),
+        {_, Acceptor_num} = lists:keyfind(acceptor_num, 1, Tcp_listener),
+        {_, Max_connections} = lists:keyfind(max_connections, 1, Tcp_listener),
+        [Port, Node_id, Acceptor_num, Max_connections]
+      catch
+        _:_ -> exit({bad_config, {server, {tcp_listener, config_error}}})
+      end;
+    undefined -> throw(undefined)
+  end.
+
+get_tcp_listener_ip(App) ->
+  case application:get_env(App, tcp_listener_ip) of
+    {ok, false} -> throw(undefined);
+    {ok, Tcp_listener_ip} ->
+      try
+        {_, Ip} = lists:keyfind(ip, 1, Tcp_listener_ip),
+        [Ip]
+      catch
+        _:_ -> exit({bad_config, {server, {tcp_listener, config_error}}})
+      end;
+    undefined -> throw(undefined)
   end.
