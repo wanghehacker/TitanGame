@@ -1,6 +1,6 @@
 {
-["src/*","src/**/*","src/***/**/*"]
-,[encrypt_debug_info,
-    {i,"include"},
-    {outdir,"./ebin"}]
-}
+ ["src/*","src/**/*","src/***/**/*"]
+ ,[encrypt_debug_info,
+     {i,"include"},
+     {outdir,"./ebin"}]
+ }
