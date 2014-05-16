@@ -59,3 +59,6 @@
   logger:error_msg(?MODULE,?LINE,Format, Args)).
 -define(CRITICAL_MSG(Format, Args),
   logger:critical_msg(?MODULE,?LINE,Format, Args)).
+
+-define(ETS_ONLINE, ets_online).								%% 本节点在线玩家
+

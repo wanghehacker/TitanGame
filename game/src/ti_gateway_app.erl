@@ -42,10 +42,10 @@ start(_StartType, _StartArgs) ->
   Log_level:set(tool:to_integer(Log_level)),
 
   titan:init_db(gateway),
+  %%gateway 启动5秒后将所有的玩家在线标志为0
   timer:apply_after(5000,db_agent,init_player_online_flag,[]),
-  ti_gateway_sup:start_link([Ip,tool:to_integer(Port),tool:to_integer(Node_id)]),
-  %%TODO
-  %%时间生成
+  ti_gateway_sup:start_link([Ip, tool:to_integer(Port), tool:to_integer(Node_id)]),
+  ti_timer:start(ti_gateway_app).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -57,7 +57,7 @@ start(_StartType, _StartArgs) ->
 %% @end
 %%--------------------------------------------------------------------
 stop(_State) ->
-  ok.
+  void.
 
 %%%===================================================================
 %%% Internal functions

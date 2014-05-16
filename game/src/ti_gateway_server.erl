@@ -12,7 +12,8 @@
 
 %% API
 -export([start_raw_server/3,
-        stop/1
+        stop/1,
+        children/1
      ]).
 
 %%开启  TCP_SERVER
