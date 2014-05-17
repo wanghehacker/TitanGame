@@ -10,7 +10,6 @@
 -author("wanghe").
 -include("common.hrl").
 
-
 %% API
 -export([gateway_start/0,
          gateway_stop/0,

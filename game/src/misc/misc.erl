@@ -23,3 +23,6 @@ delete_system_info(Pid) ->
 
 write_monitor_pid(Pid, Module, Args) ->
   ets:insert(?ETS_MONITOR_PID, {Pid, Module, Args}).
+
+delete_monitor_pid(Pid) ->
+  catch ets:delete(?ETS_MONITOR_PID, Pid).

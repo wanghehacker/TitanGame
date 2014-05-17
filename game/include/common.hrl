@@ -11,7 +11,8 @@
 -define(ALL_SERVER_PLAYERS,100000).
 
 %%数据库模块选择 (db_mysql 或 db_mongo)
--define(DB_MODULE,db_mongo).
+%% -define(DB_MODULE,db_mongo).
+-define(DB_MODULE,db_mysql).
 
 %%mongo主数据库链接池
 -define(MASTER_POOLID,master_mongo).
@@ -41,6 +42,8 @@
 -define(TCP_OPTIONS, [binary, {packet, 0}, {active, false}, {reuseaddr, true}, {nodelay, false}, {delay_send, true}, {send_timeout, 5000}, {keepalive, true}, {exit_on_close, true}]).
 -define(RECV_TIMEOUT, 5000).
 
+%%自然对数的底
+-define(E, 2.718281828459).
 
 %% ---------------------------------
 %% Logging mechanism
@@ -62,3 +65,7 @@
 
 -define(ETS_ONLINE, ets_online).								%% 本节点在线玩家
 
+-define(DIFF_SECONDS_1970_1900, 2208988800).
+-define(DIFF_SECONDS_0000_1900, 62167219200).
+-define(ONE_DAY_SECONDS, 86400).					      %%一天的时间（秒）
+-define(ONE_DAY_MILLISECONDS, 86400000).				%%一天时间（毫秒）

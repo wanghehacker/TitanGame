@@ -2,7 +2,7 @@
 %%% @author wanghe
 %%% @copyright (C) 2014, <COMPANY>
 %%% @doc
-%%%
+%%% 网关监控树
 %%% @end
 %%% Created : 14. 五月 2014 9:53
 %%%-------------------------------------------------------------------
@@ -10,17 +10,13 @@
 -author("wanghe").
 
 -behaviour(supervisor).
-
 %% API
 -export([start_link/1]).
-
 %% Supervisor callbacks
 -export([init/1]).
 
--define(SERVER, ?MODULE).
-
 start_link([Ip,Port,Node_id]) ->
-  supervisor:start_link({local, ?SERVER}, ?MODULE, [Ip,Port,Node_id]).
+  supervisor:start_link({local, ?MODULE}, ?MODULE, [Ip,Port,Node_id]).
 
 init([Ip,Port,Node_id]) ->
   {ok,
@@ -29,7 +25,7 @@ init([Ip,Port,Node_id]) ->
       [
         {
           ti_gateway,
-          {ti_gateway, start_link, [port]},
+          {ti_gateway, start_link, [Port]},
           permanent,
           10000,
           supervisor,

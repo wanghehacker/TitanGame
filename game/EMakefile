@@ -1,6 +1,5 @@
-{
- ["src/*","src/**/*","src/***/**/*"]
- ,[encrypt_debug_info,
+{ ["src/*","src/**/*","src/***/**/*"]
+ ,[debug_info,
      {i,"include"},
      {outdir,"./ebin"}]
- }
+ }.

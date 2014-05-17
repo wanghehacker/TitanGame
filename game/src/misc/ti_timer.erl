@@ -2,7 +2,7 @@
 %%% @author wanghe
 %%% @copyright (C) 2014, <COMPANY>
 %%% @doc
-%%%
+%%% 时间生成器
 %%% @end
 %%% Created : 16. 五月 2014 11:04
 %%%-------------------------------------------------------------------
@@ -11,13 +11,10 @@
 
 -behaviour(gen_server).
 %% API
--export([]).
-
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
 -include("common.hrl").
-
 %% --------------------------------------------------------------------
 %% External exports
 -export([now/0, now_seconds/0, cpu_time/0, start_link/0, start/1, info/0]).
@@ -51,9 +48,9 @@ info() ->
 
 start(Sup) ->
   supervisor:start_child(Sup,
-    {yg_timer,
-      {yg_timer, start_link, []},
-      permanent, brutal_kill, worker, [yg_timer]}).
+    {ti_timer,
+      {ti_timer, start_link, []},
+      permanent, brutal_kill, worker, [ti_timer]}).
 
 %% ====================================================================
 %% Server functions

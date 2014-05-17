@@ -38,8 +38,9 @@ start_raw_server(Port,Fun,Max)->
 
 %%停止TCP服务器
 %%Port 端口
-stop(Port) when is_integer(Port)->
+stop(Port) when is_integer(Port) ->
   Name = port_name(Port),
+  io:format("name~p~n",[Name]),
   case whereis(Name) of
     undefined ->
       not_started;

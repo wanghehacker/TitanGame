@@ -104,3 +104,10 @@ get_tcp_listener_ip(App) ->
       end;
     undefined -> throw(undefined)
   end.
+
+
+get_gateway_async_time() ->
+  case application:get_env(gateway,gateway_async_time) of
+    {ok,Async_time} ->Async_time;
+    _ ->undefined
+  end.

@@ -15,21 +15,6 @@
 -export([start/2,stop/1]).
 -include("common.hrl").
 
-%%%===================================================================
-%%% Application callbacks
-%%%===================================================================
-
-%%--------------------------------------------------------------------
-%% @private
-%% @doc
-%% This function is called whenever an application is started using
-%% application:start/[1,2], and should start the processes of the
-%% application. If the application is structured according to the OTP
-%% design principles as a supervision tree, this means starting the
-%% top supervisor of the tree.
-%%
-%% @end
-%%--------------------------------------------------------------------
 start(_StartType, _StartArgs) ->
   ets:new(?ETS_SYSTEM_INFO,[set,public,named_table,?ETSRC,?ETSWC]),
   ets:new(?ETS_MONITOR_PID,[set,public,named_table,?ETSRC,?ETSWC]),
@@ -39,26 +24,15 @@ start(_StartType, _StartArgs) ->
   [Port,Node_id,_Acceptor_num,_Max_connections] = config:get_tcp_listener(gateway),
   [Ip] = config:get_tcp_listener_ip(gateway),
   Log_level = config:get_log_level(gateway),
-  Log_level:set(tool:to_integer(Log_level)),
+ %% io:format("~p~n",[Log_level]),
+  loglevel:set(tool:to_integer(Log_level)),
 
   titan:init_db(gateway),
   %%gateway 启动5秒后将所有的玩家在线标志为0
   timer:apply_after(5000,db_agent,init_player_online_flag,[]),
   ti_gateway_sup:start_link([Ip, tool:to_integer(Port), tool:to_integer(Node_id)]),
-  ti_timer:start(ti_gateway_app).
+  ti_timer:start(ti_gateway_sup).
 
-%%--------------------------------------------------------------------
-%% @private
-%% @doc
-%% This function is called whenever an application has stopped. It
-%% is intended to be the opposite of Module:start/2 and should do
-%% any necessary cleaning up. The return value is ignored.
-%%
-%% @end
-%%--------------------------------------------------------------------
+
 stop(_State) ->
   void.
-
-%%%===================================================================
-%%% Internal functions
-%%%===================================================================
