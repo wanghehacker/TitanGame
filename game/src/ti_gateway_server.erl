@@ -72,7 +72,7 @@ code_start(Master,Port,Fun,Max)->
   process_flag(trap_exit,true),
   case gen_tcp:listen(Port,?TCP_OPTIONS) of
     {ok,Listen}->
-      Master!{self(),ok},
+        Master!{self(),ok},
       New = start_accept(Listen,Fun),
       socket_loop(Listen,New,[],Fun,Max);
     Error->

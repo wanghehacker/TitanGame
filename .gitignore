@@ -4,4 +4,3 @@ deps
 *.beam
 *.plt
 erl_crash.dump
-/game/.idea
