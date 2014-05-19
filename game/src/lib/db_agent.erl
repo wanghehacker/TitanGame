@@ -20,3 +20,7 @@
 add_server([Ip, Port, Sid, Node]) ->
   ?DB_MODULE:replace(server,[{id, Sid},  {ip, Ip}, {port, Port}, {node, Node}, {num,0}]).
 
+
+%% 获取所有服务器集群
+select_all_server() ->
+  ?DB_MODULE:select_all(server, "*", []).

@@ -22,12 +22,14 @@
 %%Max:  最大连接数
 start_raw_server(Port,Fun,Max)->
   Name = port_name(Port),
-  case whereis(name) of
+  case whereis(Name) of
     undefined ->
       Self=self(),
+      io:format("Self~p~n",[Self]),
       Pid = spawn(fun() -> code_start(Self,Port,Fun,Max) end),
       receive
         {Pid,ok}->
+          io:format("register~p~n",[Name]),
           register(Name,Pid);
         {Pid,Error}->
           Error
@@ -40,7 +42,6 @@ start_raw_server(Port,Fun,Max)->
 %%Port 端口
 stop(Port) when is_integer(Port) ->
   Name = port_name(Port),
-  io:format("name~p~n",[Name]),
   case whereis(Name) of
     undefined ->
       not_started;
@@ -72,12 +73,11 @@ code_start(Master,Port,Fun,Max)->
   process_flag(trap_exit,true),
   case gen_tcp:listen(Port,?TCP_OPTIONS) of
     {ok,Listen}->
-%%       io:format("code start OK"),
+%%     TODO 这里导致socket关闭
       Master!{self(),ok},
       New = start_accept(Listen,Fun),
       socket_loop(Listen,New,[],Fun,Max);
     Error->
-%%       io:format("code start fail~p~n",[Error]),
       Master!{self(),Error}
   end.
 

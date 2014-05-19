@@ -9,7 +9,7 @@
 -module(db_mysql).
 -include("common.hrl").
 -include("record.hrl").
--compile([export_all]).
+-compile(export_all).
 
 %% 插入数据表
 insert(Table_name, FieldList, ValueList) ->
