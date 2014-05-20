@@ -34,7 +34,7 @@
 -define(CONFIG_FILE, "../config/gateway.config").
 -define(GATEWAY_ADD,"127.0.0.1").
 -define(GATEWAY_PORT,8777).
--define(HEADER_LENGTH, 4). % 消息头长度
+-define(HEADER_LENGTH, 6). % 消息头长度
 -define(TCP_TIMEOUT, 1000). % 解析协议超时时间
 -define(TCP_OPTS, [
   binary,
@@ -144,14 +144,15 @@ code_change(_OldVsn, State, _Extra) ->
 
 %%连接网关服务器
 get_game_server()->
-  io:format("server get_game_server"),
+  io:format("server get_game_server~n"),
   case gen_tcp:connect(?GATEWAY_ADD,?GATEWAY_PORT, ?TCP_OPTS , 10000) of
     {ok, Socket}->
       Data = pt:pack(60000, <<>>),
       gen_tcp:send(Socket, Data),
-      try
+%%       try
         case gen_tcp:recv(Socket, ?HEADER_LENGTH) of
-          {ok, <<Len:16, 60000:16>>} ->
+          {ok, <<Len:32, 60000:16>>} ->
+            io:format("get_game_server ok~n"),
 %%        io:format("len: ~p ~n",[Len]),
             BodyLen = Len - ?HEADER_LENGTH,
             case gen_tcp:recv(Socket, BodyLen, 3000) of
@@ -162,7 +163,7 @@ get_game_server()->
                     <<_Id:8, Bin1/binary>> = RB,
                     {IP, Bin2} = pt:read_string(Bin1),
                     <<Port:16, _State:8, _Num:16>> = Bin2,
-%%                  io:format("IP, Port:  /~p/~p/~n",[IP, Port]),
+                    io:format("IP, Port:  /~p/~p/~n",[IP, Port]),
                     {IP, Port};
                   _-> no_gameserver
                 end;
@@ -170,15 +171,16 @@ get_game_server()->
                 gen_tcp:close(Socket),
                 error
             end;
-          {error, _Reason} ->
-%% 					io:format("error:~p~n",[Reason]),
+          {error, Reason} ->
+            io:format("error:~p~n",[Reason]),
             gen_tcp:close(Socket),
             error
-        end
-      catch
-        _:_ -> gen_tcp:close(Socket),
-          fail
-      end;
+        end;
+%%       catch
+%%         _:_ -> gen_tcp:close(Socket),
+%%           io:format("catch error~n"),
+%%           fail
+%%       end;
     {error,_Reason}->
       error
   end.

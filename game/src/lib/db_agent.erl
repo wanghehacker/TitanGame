@@ -24,3 +24,7 @@ add_server([Ip, Port, Sid, Node]) ->
 %% 获取所有服务器集群
 select_all_server() ->
   ?DB_MODULE:select_all(server, "*", []).
+
+%%系统启动将所有玩家的在线改为0
+init_player_online_flag()->
+  ?DB_MODULE:update(player, [{online_flag, 0}],[{online_flag,1}]).

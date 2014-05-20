@@ -73,7 +73,6 @@ code_start(Master,Port,Fun,Max)->
   process_flag(trap_exit,true),
   case gen_tcp:listen(Port,?TCP_OPTIONS) of
     {ok,Listen}->
-%%     TODO 这里导致socket关闭
       Master!{self(),ok},
       New = start_accept(Listen,Fun),
       socket_loop(Listen,New,[],Fun,Max);
@@ -131,9 +130,11 @@ start_accept(Listen,Fun)->
 start_child(Parent,Listen,Fun)->
   case gen_tcp:accept(Listen) of
     {ok,Socket}->
+      io:format("accept a socket"),
       Parent!{istarted,self()},
       Fun(Socket);
     _Other->
+      io:format("accept a socket false"),
       exit(oops)
   end.
 

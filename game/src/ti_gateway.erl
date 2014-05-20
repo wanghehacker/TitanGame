@@ -146,6 +146,7 @@ handoff(Socket) ->
         Now - AsyncTime > InitTime  ->
           List = mod_disperse:get_server_list(),
           {ok, Data} = pt_60:write(60000, List),
+          io:format("server data ~p~n",[Data]),
           gen_tcp:send(Socket, Data),
           gen_tcp:close(Socket);
         true ->
