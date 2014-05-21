@@ -17,7 +17,7 @@
 -define(DB_PORT,3306).
 -define(DB_USER,"root").
 -define(DB_PASS,"888888").
--define(DB_NAME,"titandata").
+-define(DB_NAME,"titangate").
 -define(DB_ENCODE,utf8).
 
 conn()->
