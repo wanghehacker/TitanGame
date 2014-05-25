@@ -29,7 +29,7 @@ now() ->
   [{timer, {Now, _}}] = ets:lookup(ets_timer, timer),
   Now.
 
-now_seconds()->
+now_seconds() ->
   [{timer, {Now, _}}] = ets:lookup(ets_timer, timer),
   {MegaSecs, Secs, _MicroSecs} = Now,
   lists:concat([MegaSecs, Secs]).
@@ -68,10 +68,10 @@ start_link() ->
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
 init([]) ->
-  ets:new(ets_timer, [set, protected, named_table ,?ETSRC, ?ETSWC]),
+  ets:new(ets_timer, [set, protected, named_table, ?ETSRC, ?ETSWC]),
   ets:insert(ets_timer, {timer, {erlang:now(), 0}}),
   erlang:send_after(?CLOCK, self(), {event, clock}),
-  misc:write_monitor_pid(self(),?MODULE, {}),
+  misc:write_monitor_pid(self(), ?MODULE, {}),
   {ok, []}.
 
 %% --------------------------------------------------------------------

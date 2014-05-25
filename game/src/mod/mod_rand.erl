@@ -32,7 +32,7 @@ get_seed() ->
 %% --- 服务器内部实现 ---------------------------------
 
 init([]) ->
-  misc:write_monitor_pid(self(),?MODULE, {}),
+  misc:write_monitor_pid(self(), ?MODULE, {}),
   State = #state{},
   {ok, State}.
 

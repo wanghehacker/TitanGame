@@ -1,0 +1,107 @@
+%%%-------------------------------------------------------------------
+%%% @author wanghe
+%%% @copyright (C) 2014, <COMPANY>
+%%% @doc
+%%% 核心服务
+%%% @end
+%%% Created : 25. 五月 2014 13:19
+%%%-------------------------------------------------------------------
+-module(mod_kernel).
+-author("wanghe").
+
+-behaviour(gen_server).
+
+-include("common.hrl").
+-include("record.hrl").
+
+%% API
+-export([start_link/0,
+  load_base_data/0,
+  load_base_data/1,
+  reload_base_data/0,
+  reload_base_data/1
+]).
+
+%% gen_server callbacks
+-export([init/1,
+  handle_call/3,
+  handle_cast/2,
+  handle_info/2,
+  terminate/2,
+  code_change/3]).
+
+-define(SERVER, ?MODULE).
+
+-record(state, {}).
+
+%%%===================================================================
+%%% API
+%%%===================================================================
+
+
+start_link() ->
+  gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+
+%%%===================================================================
+%%% gen_server callbacks
+%%%===================================================================
+
+
+init([]) ->
+  misc:write_monitor_pid(self(), ?MODULE, {0}),
+  %%初始化ets表
+  ok = init_ets(),
+  %%初始化数据库
+  ok = titan:init_db(server),
+  %%加载基础数据
+%%   ok=
+  {ok, 1}.
+
+handle_call(_Request, _From, State) ->
+  {reply, ok, State}.
+
+handle_cast(_Request, State) ->
+  {noreply, State}.
+
+handle_info(_Info, State) ->
+  {noreply, State}.
+
+terminate(_Reason, _State) ->
+  ok.
+
+code_change(_OldVsn, State, _Extra) ->
+  {ok, State}.
+
+%%%===================================================================
+%%% Internal functions
+%%%===================================================================
+
+%%加载基础数据
+load_base_data() ->
+  load_base_data(goods),
+  load_base_data(skill),
+  load_base_data(card),
+  ok.
+%%道具数据
+load_base_data(goods) ->
+  ok;
+%%技能数据
+load_base_data(skill) ->
+  ok;
+%%卡牌基础数据
+load_base_data(card) ->
+  ok.
+
+reload_base_data() ->
+  reload_base_data(goods),
+  ok.
+
+reload_base_data(goods) ->
+
+  ok.
+
+
+
+init_ets() ->
+  ets:new(?ETS_BASE_GOODS, [{keypos, #ets_base_goods.goods_id}, named_table, public, set, ?ETSRC, ?ETSWC]),
+  ok.

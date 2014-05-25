@@ -1,17 +1,16 @@
-
 -module(loglevel).
 -export([set/1, get/0]).
 -include("common.hrl").
 -define(LOGMODULE, "error_logger").
 
 %% Error levels:
--define(LOG_LEVELS,[ {0, no_log, "No log"}
-  ,{1, critical, "Critical"}
-  ,{2, error, "Error"}
-  ,{3, warning, "Warning"}
-  ,{4, info, "Info"}
-  ,{5, debug, "Debug"}
-  ,{6, test, "Test"}
+-define(LOG_LEVELS, [{0, no_log, "No log"}
+  , {1, critical, "Critical"}
+  , {2, error, "Error"}
+  , {3, warning, "Warning"}
+  , {4, info, "Info"}
+  , {5, debug, "Debug"}
+  , {6, test, "Test"}
 ]).
 
 get() ->
@@ -25,7 +24,7 @@ set(LogLevel) when is_atom(LogLevel) ->
   set(level_to_integer(LogLevel));
 set(Loglevel) when is_integer(Loglevel) ->
   try
-    {Mod,Code} = dynamic_compile:from_string(logger_src(Loglevel)),
+    {Mod, Code} = dynamic_compile:from_string(logger_src(Loglevel)),
     code:load_binary(Mod, ?LOGMODULE ++ ".erl", Code)
   catch
     Type:Error -> ?CRITICAL_MSG("Error compiling logger (~p): ~p~n", [Type, Error])
@@ -55,7 +54,7 @@ logger_src(Loglevel) ->
            critical_msg/4,
            get/0]).
 
- get() -> "++ L ++".
+ get() -> " ++ L ++ ".
 
     %% Helper functions
     test_msg(Module, Line, Format, Args) when " ++ L ++ " >= 6 ->

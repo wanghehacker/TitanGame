@@ -14,7 +14,7 @@
 -include("common.hrl").
 
 %% API
--export([start_link/1,server_stop/0]).
+-export([start_link/1, server_stop/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -25,12 +25,12 @@
   code_change/3]).
 
 %%消息头长度
--define(HEADER_LENGTH,6).
+-define(HEADER_LENGTH, 6).
 
--record(gatewayinit,{
-  id=1,
-  init_time=0,
-  async_time=0
+-record(gatewayinit, {
+  id = 1,
+  init_time = 0,
+  async_time = 0
 }).
 
 
@@ -44,7 +44,7 @@
 %% @end
 %%--------------------------------------------------------------------
 start_link(Port) ->
-  misc:write_system_info(self(),tcp_listener,{"",Port,now()}),
+  misc:write_system_info(self(), tcp_listener, {"", Port, now()}),
   gen_server:start_link(?MODULE, [Port], []).
 
 %%%===================================================================
@@ -52,25 +52,25 @@ start_link(Port) ->
 %%%===================================================================
 
 init([Port]) ->
-  misc:write_monitor_pid(self(),?MODULE,{}),
-  F = fun(Sock)->handoff(Sock) end,
+  misc:write_monitor_pid(self(), ?MODULE, {}),
+  F = fun(Sock) -> handoff(Sock) end,
   ti_gateway_server:stop(Port),
-  ti_gateway_server:start_raw_server(Port,F,?ALL_SERVER_PLAYERS),
+  ti_gateway_server:start_raw_server(Port, F, ?ALL_SERVER_PLAYERS),
   Now = util:unixtime(),
   Async_time =
     case config:get_gateway_async_time() of
       undefined -> 0;
       Second -> Second
     end,
-  ets:new(gatewayinit,[{keypos,#gatewayinit.id},named_table,public,set,?ETSRC,?ETSWC]),
-  ets:insert(gatewayinit,#gatewayinit{id=1,init_time = Now,async_time = Async_time}),
+  ets:new(gatewayinit, [{keypos, #gatewayinit.id}, named_table, public, set, ?ETSRC, ?ETSWC]),
+  ets:insert(gatewayinit, #gatewayinit{id = 1, init_time = Now, async_time = Async_time}),
   %%开始统计进程  TODO 用到的时候再加统计进程
   %%{ok,Pid} =  mod_s
   {ok, true}.
 %%关闭服务器过程禁止刷进游戏
-server_stop()->
+server_stop() ->
   Now = util:unixtime(),
-  ets:insert(gatewayinit,#gatewayinit{id = 1,init_time = Now,async_time = 100}).
+  ets:insert(gatewayinit, #gatewayinit{id = 1, init_time = Now, async_time = 100}).
 
 %%--------------------------------------------------------------------
 %% @private
@@ -117,7 +117,7 @@ handle_info(_Info, State) ->
 %% @end
 %%--------------------------------------------------------------------
 terminate(_Reason, _State) ->
-  io:format("stop ~p~n",[_Reason]),
+  io:format("stop ~p~n", [_Reason]),
   ok.
 
 %%--------------------------------------------------------------------
@@ -140,13 +140,13 @@ handoff(Socket) ->
   case gen_tcp:recv(Socket, ?HEADER_LENGTH) of
     {ok, <<_Len:32, 60000:16>>} ->
       %%延时允许客户端连接
-      [{_,_,InitTime,AsyncTime}] = ets:match_object(gatewayinit,#gatewayinit{id =1 ,_='_'}),
+      [{_, _, InitTime, AsyncTime}] = ets:match_object(gatewayinit, #gatewayinit{id = 1, _ = '_'}),
       Now = util:unixtime(),
       if
-        Now - AsyncTime > InitTime  ->
+        Now - AsyncTime > InitTime ->
           List = mod_disperse:get_server_list(),
           {ok, Data} = pt_60:write(60000, List),
-          io:format("server data ~p~n",[Data]),
+          io:format("server data ~p~n", [Data]),
           gen_tcp:send(Socket, Data),
           gen_tcp:close(Socket);
         true ->

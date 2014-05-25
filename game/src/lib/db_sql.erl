@@ -15,27 +15,27 @@
 %% 执行一个SQL查询,返回影响的行数
 execute(Sql) ->
   case mysql:fetch(?DB_POOL, Sql) of
-    {updated, {_, _, _, R, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {updated, {_, _, _, R, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 execute(Sql, Args) when is_atom(Sql) ->
   case mysql:execute(?DB_POOL, Sql, Args) of
-    {updated, {_, _, _, R, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {updated, {_, _, _, R, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end;
 execute(Sql, Args) ->
   mysql:prepare(s, Sql),
   case mysql:execute(?DB_POOL, s, Args) of
-    {updated, {_, _, _, R, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {updated, {_, _, _, R, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 
 %% 事务处理
 transaction(F) ->
   case mysql:transaction(?DB_POOL, F) of
     {atomic, R} -> R;
-    {updated, {_, _, _, R, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Reason]);
+    {updated, {_, _, _, R, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Reason]);
     {aborted, {Reason, _}} -> mysql_halt([Reason]);
     Error -> mysql_halt([Error])
   end.
@@ -44,76 +44,76 @@ transaction(F) ->
 select_limit(Sql, Offset, Num) ->
   S = list_to_binary([Sql, <<" limit ">>, integer_to_list(Offset), <<", ">>, integer_to_list(Num)]),
   case mysql:fetch(?DB_POOL, S) of
-    {updated, {_, _, _, R, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {updated, {_, _, _, R, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 select_limit(Sql, Args, Offset, Num) ->
   S = list_to_binary([Sql, <<" limit ">>, list_to_binary(integer_to_list(Offset)), <<", ">>, list_to_binary(integer_to_list(Num))]),
   mysql:prepare(s, S),
   case mysql:execute(?DB_POOL, s, Args) of
-    {updated, {_, _, _, R, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {updated, {_, _, _, R, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 
 %% 取出查询结果中的第一行第一列
 %% 未找到时返回null
 get_one(Sql) ->
   case mysql:fetch(?DB_POOL, Sql) of
-    {data, {_, _, [], _, _,_,_,_}} -> null;
-    {data, {_, _, [[R]], _, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {data, {_, _, [], _, _, _, _, _}} -> null;
+    {data, {_, _, [[R]], _, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 get_one(Sql, Args) when is_atom(Sql) ->
   case mysql:execute(?DB_POOL, Sql, Args) of
-    {data, {_, _, [], _, _,_,_,_}} -> null;
-    {data, {_, _, [[R]], _, _,_,_,_}} -> R;
-    {error, {_, _, _, _,_, Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {data, {_, _, [], _, _, _, _, _}} -> null;
+    {data, {_, _, [[R]], _, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end;
 get_one(Sql, Args) ->
   mysql:prepare(s, Sql),
   case mysql:execute(?DB_POOL, s, Args) of
-    {data, {_, _, [], _, _ ,_, _, _}} -> null;
+    {data, {_, _, [], _, _, _, _, _}} -> null;
     {data, {_, _, [[R]], _, _, _, _, _}} -> R;
-    {error, {_, _, _, _,_, Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 
 %% 取出查询结果中的第一行
 get_row(Sql) ->
   case mysql:fetch(?DB_POOL, Sql) of
-    {data, {_, _, [], _, _, _, _,_}} -> [];
+    {data, {_, _, [], _, _, _, _, _}} -> [];
     {data, {_, _, [R], _, _, _, _, _}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 get_row(Sql, Args) when is_atom(Sql) ->
   case mysql:execute(?DB_POOL, Sql, Args) of
-    {data, {_, _, [], _, _,_,_,_}} -> [];
-    {data, {_, _, [R], _, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {data, {_, _, [], _, _, _, _, _}} -> [];
+    {data, {_, _, [R], _, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end;
 get_row(Sql, Args) ->
   mysql:prepare(s, Sql),
   case mysql:execute(?DB_POOL, s, Args) of
-    {data, {_, _, [], _, _ ,_,_,_}} -> [];
-    {data, {_, _, [R], _, _,_ ,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {data, {_, _, [], _, _, _, _, _}} -> [];
+    {data, {_, _, [R], _, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 
 %% 取出查询结果中的所有行
 get_all(Sql) ->
   case mysql:fetch(?DB_POOL, Sql) of
-    {data, {_, _, R, _, _, _, _,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {data, {_, _, R, _, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 get_all(Sql, Args) when is_atom(Sql) ->
   case mysql:execute(?DB_POOL, Sql, Args) of
-    {data, {_, _, R, _, _,_,_,_}} -> R;
-    {error, {_, _, _, _, _,Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {data, {_, _, R, _, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end;
 get_all(Sql, Args) ->
   mysql:prepare(s, Sql),
   case mysql:execute(?DB_POOL, s, Args) of
-    {data, {_, _, R, _, _,_,_,_}} -> R;
-    {error, {_, _, _, _,_, Reason,_,_}} -> mysql_halt([Sql, Reason])
+    {data, {_, _, R, _, _, _, _, _}} -> R;
+    {error, {_, _, _, _, _, Reason, _, _}} -> mysql_halt([Sql, Reason])
   end.
 
 %% @doc 显示人可以看得懂的错误信息
@@ -138,23 +138,23 @@ make_insert_sql(Table_name, FieldList, ValueList) ->
 %%Data:值
 make_update_sql(Table_name, Field, Data, Key, Value) ->
   L = make_conn_sql(Field, Data, []),
-  lists:concat(["update `", Table_name, "` set ",L," where ",Key,"= '",tool:to_list(Value),"'"]).
+  lists:concat(["update `", Table_name, "` set ", L, " where ", Key, "= '", tool:to_list(Value), "'"]).
 
-make_conn_sql([], _, L ) ->
-  L ;
-make_conn_sql(_, [], L ) ->
-  L ;
+make_conn_sql([], _, L) ->
+  L;
+make_conn_sql(_, [], L) ->
+  L;
 make_conn_sql([F | T1], [D | T2], []) ->
-  L  = ["`", tool:to_list(F), "`='",get_sql_val(D),"'"],
+  L = ["`", tool:to_list(F), "`='", get_sql_val(D), "'"],
   make_conn_sql(T1, T2, L);
 make_conn_sql([F | T1], [D | T2], L) ->
-  L1  = L ++ [",`", tool:to_list(F),"`='",get_sql_val(D),"'"],
+  L1 = L ++ [",`", tool:to_list(F), "`='", get_sql_val(D), "'"],
   make_conn_sql(T1, T2, L1).
 
 get_sql_val(Val) ->
   case is_binary(Val) orelse is_list(Val) of
-    true -> re:replace(tool:to_list(Val),"'","''",[global,{return,list}]);
-    _-> tool:to_list(Val)
+    true -> re:replace(tool:to_list(Val), "'", "''", [global, {return, list}]);
+    _ -> tool:to_list(Val)
   end.
 
 make_insert_sql(Table_name, Field_Value_List) ->
@@ -166,14 +166,15 @@ make_insert_sql(Table_name, Field_Value_List) ->
         Expr = case Field_value of
                  {Field, Val} ->
                    case is_binary(Val) orelse is_list(Val) of
-                     true -> io_lib:format("`~s`='~s'",[Field, re:replace(Val,"'","''",[global,{return,binary}])]);
-                     _-> io_lib:format("`~s`='~p'",[Field, Val])
+                     true ->
+                       io_lib:format("`~s`='~s'", [Field, re:replace(Val, "'", "''", [global, {return, binary}])]);
+                     _ -> io_lib:format("`~s`='~p'", [Field, Val])
                    end
                end,
-        S1 = if Sum == length(Field_Value_List) -> io_lib:format("~s ",[Expr]);
-               true -> io_lib:format("~s,",[Expr])
+        S1 = if Sum == length(Field_Value_List) -> io_lib:format("~s ", [Expr]);
+               true -> io_lib:format("~s,", [Expr])
              end,
-        {S1, Sum+1}
+        {S1, Sum + 1}
       end,
       1, Field_Value_List),
   lists:concat(["insert into `", Table_name, "` set ",
@@ -189,14 +190,15 @@ make_replace_sql(Table_name, Field_Value_List) ->
         Expr = case Field_value of
                  {Field, Val} ->
                    case is_binary(Val) orelse is_list(Val) of
-                     true -> io_lib:format("`~s`='~s'",[Field, re:replace(Val,"'","''",[global,{return,binary}])]);
-                     _-> io_lib:format("`~s`=~p",[Field, Val])
+                     true ->
+                       io_lib:format("`~s`='~s'", [Field, re:replace(Val, "'", "''", [global, {return, binary}])]);
+                     _ -> io_lib:format("`~s`=~p", [Field, Val])
                    end
                end,
-        S1 = if Sum == length(Field_Value_List) -> io_lib:format("~s ",[Expr]);
-               true -> io_lib:format("~s,",[Expr])
+        S1 = if Sum == length(Field_Value_List) -> io_lib:format("~s ", [Expr]);
+               true -> io_lib:format("~s,", [Expr])
              end,
-        {S1, Sum+1}
+        {S1, Sum + 1}
       end,
       1, Field_Value_List),
   lists:concat(["replace into `", Table_name, "` set ",
@@ -215,14 +217,15 @@ make_update_sql(Table_name, Field_Value_List, Where_List) ->
                  {Field, Val, sub} -> io_lib:format("`~s`=`~s`-~p", [Field, Field, Val]);
                  {Field, Val} ->
                    case is_binary(Val) orelse is_list(Val) of
-                     true -> io_lib:format("`~s`='~s'",[Field, re:replace(Val,"'","''",[global,{return,binary}])]);
-                     _-> io_lib:format("`~s`='~p'",[Field, Val])
+                     true ->
+                       io_lib:format("`~s`='~s'", [Field, re:replace(Val, "'", "''", [global, {return, binary}])]);
+                     _ -> io_lib:format("`~s`='~p'", [Field, Val])
                    end
                end,
-        S1 = if Sum == length(Field_Value_List) -> io_lib:format("~s ",[Expr]);
-               true -> io_lib:format("~s,",[Expr])
+        S1 = if Sum == length(Field_Value_List) -> io_lib:format("~s ", [Expr]);
+               true -> io_lib:format("~s,", [Expr])
              end,
-        {S1, Sum+1}
+        {S1, Sum + 1}
       end,
       1, Field_Value_List),
   {Wsql, Count2} = get_where_sql(Where_List),
@@ -263,7 +266,7 @@ make_select_sql(Table_name, Fields_sql, Where_List, Order_List, Limit_num) ->
                [] -> "";
                [Num] -> lists:concat(["limit ", Num])
              end,
-  lists:concat(["select ", Fields_sql," from `", Table_name, "` ", WhereSql, OrderSql, LimitSql]).
+  lists:concat(["select ", Fields_sql, " from `", Table_name, "` ", WhereSql, OrderSql, LimitSql]).
 
 get_order_sql(Order_List) ->
 %%  排序用列表方式：[{id, desc},{status}]
@@ -272,15 +275,15 @@ get_order_sql(Order_List) ->
       Expr =
         case Field_Order of
           {Field, Order} ->
-            io_lib:format("~p ~p",[Field, Order]);
+            io_lib:format("~p ~p", [Field, Order]);
           {Field} ->
-            io_lib:format("~p",[Field]);
-          _-> ""
+            io_lib:format("~p", [Field]);
+          _ -> ""
         end,
-      S1 = if Sum == length(Order_List) -> io_lib:format("~s ",[Expr]);
-             true ->	io_lib:format("~s,",[Expr])
+      S1 = if Sum == length(Order_List) -> io_lib:format("~s ", [Expr]);
+             true -> io_lib:format("~s,", [Expr])
            end,
-      {S1, Sum+1}
+      {S1, Sum + 1}
     end,
     1, Order_List).
 
@@ -296,24 +299,27 @@ get_where_sql(Where_List) ->
         case Field_Operator_Val of
           {Field, Operator, Val, Or_And} ->
             case is_binary(Val) orelse is_list(Val) of
-              true -> [io_lib:format("`~s`~s'~s'",[Field, Operator, re:replace(Val,"'","''",[global,{return,binary}])]), Or_And];
-              _-> [io_lib:format("`~s`~s'~p'",[Field, Operator, Val]), Or_And]
+              true ->
+                [io_lib:format("`~s`~s'~s'", [Field, Operator, re:replace(Val, "'", "''", [global, {return, binary}])]), Or_And];
+              _ -> [io_lib:format("`~s`~s'~p'", [Field, Operator, Val]), Or_And]
             end;
           {Field, Operator, Val} ->
             case is_binary(Val) orelse is_list(Val) of
-              true -> [io_lib:format("`~s`~s'~s'",[Field, Operator, re:replace(Val,"'","''",[global,{return,binary}])]), "and"];
-              _-> [io_lib:format("`~s`~s'~p'",[Field, Operator, Val]),"and"]
+              true ->
+                [io_lib:format("`~s`~s'~s'", [Field, Operator, re:replace(Val, "'", "''", [global, {return, binary}])]), "and"];
+              _ -> [io_lib:format("`~s`~s'~p'", [Field, Operator, Val]), "and"]
             end;
           {Field, Val} ->
             case is_binary(Val) orelse is_list(Val) of
-              true -> [io_lib:format("`~s`='~s'",[Field, re:replace(Val,"'","''",[global,{return,binary}])]), "and"];
-              _-> [io_lib:format("`~s`='~p'",[Field, Val]), "and"]
+              true ->
+                [io_lib:format("`~s`='~s'", [Field, re:replace(Val, "'", "''", [global, {return, binary}])]), "and"];
+              _ -> [io_lib:format("`~s`='~p'", [Field, Val]), "and"]
             end;
-          _-> ""
+          _ -> ""
         end,
-      S1 = if Sum == length(Where_List) -> io_lib:format("~s ",[Expr]);
-             true ->	io_lib:format("~s ~s ",[Expr, Or_And_1])
+      S1 = if Sum == length(Where_List) -> io_lib:format("~s ", [Expr]);
+             true -> io_lib:format("~s ~s ", [Expr, Or_And_1])
            end,
-      {S1, Sum+1}
+      {S1, Sum + 1}
     end,
     1, Where_List).

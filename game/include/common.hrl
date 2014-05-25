@@ -69,3 +69,6 @@
 -define(DIFF_SECONDS_0000_1900, 62167219200).
 -define(ONE_DAY_SECONDS, 86400).					      %%一天的时间（秒）
 -define(ONE_DAY_MILLISECONDS, 86400000).				%%一天时间（毫秒）
+
+%%静态数据ETS
+-define(ETS_BASE_GOODS,).

@@ -39,7 +39,7 @@ get_mysql_config(App) ->
 get_mongo_config(App) ->
   case application:get_env(App, emongo_config) of
     {ok, false} -> throw(undefined);
-    {ok,Emongo_config} ->
+    {ok, Emongo_config} ->
       {_, PoolId} = lists:keyfind(poolId, 1, Emongo_config),
       {_, EmongoSize} = lists:keyfind(emongoSize, 1, Emongo_config),
       {_, EmongoHost} = lists:keyfind(emongoHost, 1, Emongo_config),
@@ -52,7 +52,7 @@ get_mongo_config(App) ->
 get_log_mongo_config(App) ->
   case application:get_env(App, log_emongo_config) of
     {ok, false} -> throw(undefined);
-    {ok,Emongo_config} ->
+    {ok, Emongo_config} ->
       {_, PoolId} = lists:keyfind(poolId, 1, Emongo_config),
       {_, EmongoSize} = lists:keyfind(emongoSize, 1, Emongo_config),
       {_, EmongoHost} = lists:keyfind(emongoHost, 1, Emongo_config),
@@ -65,7 +65,7 @@ get_log_mongo_config(App) ->
 get_slave_mongo_config(App) ->
   case application:get_env(App, slave_emongo_config) of
     {ok, false} -> throw(undefined);
-    {ok,Emongo_config} ->
+    {ok, Emongo_config} ->
       {_, PoolId} = lists:keyfind(poolId, 1, Emongo_config),
       {_, EmongoSize} = lists:keyfind(emongoSize, 1, Emongo_config),
       {_, EmongoHost} = lists:keyfind(emongoHost, 1, Emongo_config),
@@ -107,7 +107,7 @@ get_tcp_listener_ip(App) ->
 
 
 get_gateway_async_time() ->
-  case application:get_env(gateway,gateway_async_time) of
-    {ok,Async_time} ->Async_time;
-    _ ->undefined
+  case application:get_env(gateway, gateway_async_time) of
+    {ok, Async_time} -> Async_time;
+    _ -> undefined
   end.

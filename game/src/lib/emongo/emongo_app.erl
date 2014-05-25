@@ -26,21 +26,21 @@
 
 -include("emongo.hrl").
 
--export([start/2, stop/1, initialize_pools/1]). 
+-export([start/2, stop/1, initialize_pools/1]).
 
 start(_, _) ->
-	{ok, _Pid} = emongo_sup:start_link(),
-	% Pools must be initialized after emongo_sup is started instead of in
-	% emongo:init, because emongo_server_sup instances are dynamically added
-	% to the emongo_sup supervisor, which also supervises emongo gen_server.
-	% (otherwise get a deadlock where emongo is waiting on emongo_sup, which
-	% is waiting on emongo)
-	%initialize_pools(),
-	%{ok, Pid}.
-	ok.
+  {ok, _Pid} = emongo_sup:start_link(),
+  % Pools must be initialized after emongo_sup is started instead of in
+  % emongo:init, because emongo_server_sup instances are dynamically added
+  % to the emongo_sup supervisor, which also supervises emongo gen_server.
+  % (otherwise get a deadlock where emongo is waiting on emongo_sup, which
+  % is waiting on emongo)
+  %initialize_pools(),
+  %{ok, Pid}.
+  ok.
 
 stop(_) -> ok.
 
 initialize_pools([PoolId, EmongoHost, EmongoPort, EmongoDatabase, EmongoSiz]) ->
-	emongo:add_pool(PoolId, EmongoHost, EmongoPort, EmongoDatabase, EmongoSiz),
-	ok.
+  emongo:add_pool(PoolId, EmongoHost, EmongoPort, EmongoDatabase, EmongoSiz),
+  ok.

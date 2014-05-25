@@ -87,11 +87,11 @@ stat_db_access(Table_name, Operation) ->
   try
     Key = lists:concat([Table_name, "/", Operation]),
     [NowBeginTime, NowCount] =
-      case ets:match(?ETS_STAT_DB,{Key, Table_name, Operation , '$4', '$5'}) of
+      case ets:match(?ETS_STAT_DB, {Key, Table_name, Operation, '$4', '$5'}) of
         [[OldBeginTime, OldCount]] ->
-          [OldBeginTime, OldCount+1];
+          [OldBeginTime, OldCount + 1];
         _ ->
-          [ti_timer:now(),1]
+          [ti_timer:now(), 1]
       end,
     ets:insert(?ETS_STAT_DB, {Key, Table_name, Operation, NowBeginTime, NowCount}),
     ok

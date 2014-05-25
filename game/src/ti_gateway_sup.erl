@@ -15,13 +15,13 @@
 %% Supervisor callbacks
 -export([init/1]).
 
-start_link([Ip,Port,Node_id]) ->
-  supervisor:start_link({local, ?MODULE}, ?MODULE, [Ip,Port,Node_id]).
+start_link([Ip, Port, Node_id]) ->
+  supervisor:start_link({local, ?MODULE}, ?MODULE, [Ip, Port, Node_id]).
 
-init([Ip,Port,Node_id]) ->
+init([Ip, Port, Node_id]) ->
   {ok,
     {
-      {one_for_one,3,10},
+      {one_for_one, 3, 10},
       [
         {
           ti_gateway,
@@ -33,7 +33,7 @@ init([Ip,Port,Node_id]) ->
         },
         {
           mod_disperse,
-          {mod_disperse, start_link,[Ip, Port, Node_id]},
+          {mod_disperse, start_link, [Ip, Port, Node_id]},
           permanent,
           10000,
           supervisor,

@@ -13,7 +13,7 @@
 -include("record.hrl").
 
 %% API
--export([read_string/1,pack/2]).
+-export([read_string/1, pack/2]).
 
 %%读取字符串
 read_string(Bin) ->
@@ -23,12 +23,12 @@ read_string(Bin) ->
         <<Str:Len/binary-unit:8, Rest/binary>> ->
           {binary_to_list(Str), Rest};
         _R1 ->
-          {[],<<>>}
+          {[], <<>>}
       end;
     _R1 ->
-      {[],<<>>}
+      {[], <<>>}
   end.
 
-pack(Cmd,Data)->
-  L = byte_size(Data)+6,
-  <<L:32,Cmd:16,Data/binary>>.
+pack(Cmd, Data) ->
+  L = byte_size(Data) + 6,
+  <<L:32, Cmd:16, Data/binary>>.

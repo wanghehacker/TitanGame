@@ -22,7 +22,7 @@ run(Fun, Loop) ->
   io:format("~p loops, using time: ~pms~n", [Loop, T1]),
   ok.
 
-for(Max, Max , Fun) ->
+for(Max, Max, Fun) ->
   Fun();
 for(I, Max, Fun) ->
   Fun(), for(I + 1, Max, Fun).

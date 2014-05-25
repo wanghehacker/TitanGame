@@ -9,7 +9,7 @@
 %%% Note    : All MySQL code was written by Magnus Ahltorp, originally
 %%%           in the file mysql.erl - I just moved it here.
 %%%
-%%% Copyright (c) 2001-2004 Kungliga Tekniska Högskolan
+%%% Copyright (c) 2001-2004 Kungliga Tekniska Hï¿½gskolan
 %%% See the file COPYING
 %%%
 %%%           Signals this receiver process can send to it's parent
@@ -32,14 +32,14 @@
 %% External exports (should only be used by the 'mysql_conn' module)
 %%--------------------------------------------------------------------
 -export([start_link/4
-	]).
+]).
 
 -record(state, {
-	  socket,
-	  parent,
-	  log_fun,
-	  data
-	 }).
+  socket,
+  parent,
+  log_fun,
+  data
+}).
 
 -define(SECURE_CONNECTION, 32768).
 -define(CONNECT_TIMEOUT, 5000).
@@ -64,21 +64,20 @@
 %%           Reason  = atom() | string()
 %%--------------------------------------------------------------------
 start_link(Host, Port, LogFun, Parent) when is_list(Host), is_integer(Port) ->
-    RecvPid =
-	spawn_link(fun () ->
-			   init(Host, Port, LogFun, Parent)
-		   end),
-    %% wait for the socket from the spawned pid
-    receive
-	{mysql_recv, RecvPid, init, {error, E}} ->
-	    {error, E};
-	{mysql_recv, RecvPid, init, {ok, Socket}} ->
-	    {ok, RecvPid, Socket}
-    after ?CONNECT_TIMEOUT ->
-	    catch exit(RecvPid, kill),
-	    {error, "timeout"}
-    end.
-
+  RecvPid =
+    spawn_link(fun() ->
+      init(Host, Port, LogFun, Parent)
+    end),
+  %% wait for the socket from the spawned pid
+  receive
+    {mysql_recv, RecvPid, init, {error, E}} ->
+      {error, E};
+    {mysql_recv, RecvPid, init, {ok, Socket}} ->
+      {ok, RecvPid, Socket}
+  after ?CONNECT_TIMEOUT ->
+    catch exit(RecvPid, kill),
+    {error, "timeout"}
+  end.
 
 
 %%====================================================================
@@ -95,24 +94,24 @@ start_link(Host, Port, LogFun, Parent) when is_list(Host), is_integer(Port) ->
 %% Returns : error | never returns
 %%--------------------------------------------------------------------
 init(Host, Port, LogFun, Parent) ->
-    case gen_tcp:connect(Host, Port, [binary, {packet, 0}]) of
-	{ok, Sock} ->
-	    Parent ! {mysql_recv, self(), init, {ok, Sock}},
-	    State = #state{socket  = Sock,
-			   parent  = Parent,
-			   log_fun = LogFun,
-			   data    = <<>>
-			  },
-	    loop(State);
-	E ->
-	    LogFun(?MODULE, ?LINE, error,
-		   fun() ->
-			   {"mysql_recv: Failed connecting to ~p:~p : ~p",
-			    [Host, Port, E]}
-		   end),
-	    Msg = lists:flatten(io_lib:format("connect failed : ~p", [E])),
-	    Parent ! {mysql_recv, self(), init, {error, Msg}}
-    end.
+  case gen_tcp:connect(Host, Port, [binary, {packet, 0}]) of
+    {ok, Sock} ->
+      Parent ! {mysql_recv, self(), init, {ok, Sock}},
+      State = #state{socket = Sock,
+        parent = Parent,
+        log_fun = LogFun,
+        data = <<>>
+      },
+      loop(State);
+    E ->
+      LogFun(?MODULE, ?LINE, error,
+        fun() ->
+          {"mysql_recv: Failed connecting to ~p:~p : ~p",
+            [Host, Port, E]}
+        end),
+      Msg = lists:flatten(io_lib:format("connect failed : ~p", [E])),
+      Parent ! {mysql_recv, self(), init, {error, Msg}}
+  end.
 
 %%--------------------------------------------------------------------
 %% Function: loop(State)
@@ -122,31 +121,31 @@ init(Host, Port, LogFun, Parent) ->
 %% Returns : error | never returns
 %%--------------------------------------------------------------------
 loop(State) ->
-    Sock = State#state.socket,
-    receive
-	{tcp, Sock, InData} ->
-	    NewData = list_to_binary([State#state.data, InData]),
-	    %% send data to parent if we have enough data
-	    Rest = sendpacket(State#state.parent, NewData),
-	    loop(State#state{data = Rest});
-	{tcp_error, Sock, Reason} ->
-	    LogFun = State#state.log_fun,
-	    LogFun(?MODULE, ?LINE, error,
-		   fun() ->
-			   {"mysql_recv: Socket ~p closed : ~p",
-			    [Sock, Reason]}
-		   end),
-	    State#state.parent ! {mysql_recv, self(), closed, {error, Reason}},
-	    error;
-	{tcp_closed, Sock} ->
-	    LogFun = State#state.log_fun,
-	    LogFun(?MODULE, ?LINE, debug,
-		   fun() ->
-			   {"mysql_recv: Socket ~p closed", [Sock]}
-		   end),
-	    State#state.parent ! {mysql_recv, self(), closed, normal},
-	    error
-    end.
+  Sock = State#state.socket,
+  receive
+    {tcp, Sock, InData} ->
+      NewData = list_to_binary([State#state.data, InData]),
+      %% send data to parent if we have enough data
+      Rest = sendpacket(State#state.parent, NewData),
+      loop(State#state{data = Rest});
+    {tcp_error, Sock, Reason} ->
+      LogFun = State#state.log_fun,
+      LogFun(?MODULE, ?LINE, error,
+        fun() ->
+          {"mysql_recv: Socket ~p closed : ~p",
+            [Sock, Reason]}
+        end),
+      State#state.parent ! {mysql_recv, self(), closed, {error, Reason}},
+      error;
+    {tcp_closed, Sock} ->
+      LogFun = State#state.log_fun,
+      LogFun(?MODULE, ?LINE, debug,
+        fun() ->
+          {"mysql_recv: Socket ~p closed", [Sock]}
+        end),
+      State#state.parent ! {mysql_recv, self(), closed, normal},
+      error
+  end.
 
 %%--------------------------------------------------------------------
 %% Function: sendpacket(Parent, Data)
@@ -158,16 +157,16 @@ loop(State) ->
 %%--------------------------------------------------------------------
 %% send data to parent if we have enough data
 sendpacket(Parent, Data) ->
-    case Data of
-	<<Length:24/little, Num:8, D/binary>> ->
-	    if
-		Length =< size(D) ->
-		    {Packet, Rest} = split_binary(D, Length),
-		    Parent ! {mysql_recv, self(), data, Packet, Num},
-		    sendpacket(Parent, Rest);
-		true ->
-		    Data
-	    end;
-	_ ->
-	    Data
-    end.
+  case Data of
+    <<Length:24/little, Num:8, D/binary>> ->
+      if
+        Length =< size(D) ->
+          {Packet, Rest} = split_binary(D, Length),
+          Parent ! {mysql_recv, self(), data, Packet, Num},
+          sendpacket(Parent, Rest);
+        true ->
+          Data
+      end;
+    _ ->
+      Data
+  end.
