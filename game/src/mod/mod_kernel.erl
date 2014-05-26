@@ -54,7 +54,7 @@ init([]) ->
   %%初始化数据库
   ok = titan:init_db(server),
   %%加载基础数据
-%%   ok=
+  ok = load_base_data(),
   {ok, 1}.
 
 handle_call(_Request, _From, State) ->
@@ -84,24 +84,29 @@ load_base_data() ->
   ok.
 %%道具数据
 load_base_data(goods) ->
+  goods_util:init_goods(),
   ok;
 %%技能数据
 load_base_data(skill) ->
+%%   TODO 技能数据
   ok;
 %%卡牌基础数据
 load_base_data(card) ->
+%%   TODO 卡牌数据
   ok.
 
+%%重新加载基础数据
 reload_base_data() ->
   reload_base_data(goods),
   ok.
 
 reload_base_data(goods) ->
-
+  goods_util:reload_goods(),
   ok.
 
 
 
+%% 初始化ETS表
 init_ets() ->
   ets:new(?ETS_BASE_GOODS, [{keypos, #ets_base_goods.goods_id}, named_table, public, set, ?ETSRC, ?ETSWC]),
   ok.

@@ -19,6 +19,8 @@ start([Ip, Port, Node_id]) ->
 
   inets:start(),
 
+  ok = start_kernel(),      %%开启核心服务
+
   timer:sleep(1000),
   io:format("the global Pro ok! Please start the next node.. \n"),
   ok.
@@ -32,4 +34,13 @@ start_kernel() ->
       },
       permanent, 10000, supervisor, [mod_kernel]
     }),
+  ok.
+
+%%开启tcp listener监控树
+start_tcp(Port) ->
+  {ok,_} = supervisor:start_child(
+    ti_server_sup,
+    {ti_tcp_listener_sup,
+      {ti_tcp_listener_sup, start_link, [Port]},
+      transient, infinity, supervisor, [ti_tcp_listener_sup]}),
   ok.

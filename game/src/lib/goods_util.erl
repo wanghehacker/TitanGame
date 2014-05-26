@@ -32,3 +32,9 @@ init_goods_type() ->
     _ -> skip
   end,
   ok.
+
+init_goods()->
+%%初始化物品表
+  ok = init_goods_type(),
+%%后续追加各种表
+  ok.
