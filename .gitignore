@@ -4,3 +4,6 @@ deps
 *.beam
 *.plt
 erl_crash.dump
+/game/logs
+/game/.idea
+/game/ebin
