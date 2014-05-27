@@ -33,7 +33,7 @@ start_link()->
 
 init()->
   process_flag(trap_exit,true),
-  Client = #client,
+  Client = #client{},
   receive
     {go,Socket}->
       login_parse_socket(Socket,Client);

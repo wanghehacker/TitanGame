@@ -111,3 +111,9 @@ get_gateway_async_time() ->
     {ok, Async_time} -> Async_time;
     _ -> undefined
   end.
+
+get_gateway_node(App) ->
+  case application:get_env(App, gateway_node) of
+    {ok, Gateway_node} -> Gateway_node;
+    _ -> undefined
+  end.
