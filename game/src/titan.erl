@@ -133,7 +133,7 @@ stop_applications(Apps) ->
     cannot_stop_application,
     Apps).
 
-
+%% App 是 gateway 或者 run_1
 init_db(App) ->
   case ?DB_MODULE == db_mysql of
     true ->

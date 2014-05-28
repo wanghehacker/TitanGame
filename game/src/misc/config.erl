@@ -24,7 +24,8 @@ get_log_level(App) ->
 
 get_mysql_config(App) ->
   case application:get_env(App, mysql_config) of
-    {ok, false} -> throw(undefined);
+    {ok, false} ->
+      throw(undefined);
     {ok, Mysql_config} ->
       {_, Host} = lists:keyfind(host, 1, Mysql_config),
       {_, Port} = lists:keyfind(port, 1, Mysql_config),
@@ -33,7 +34,8 @@ get_mysql_config(App) ->
       {_, DB} = lists:keyfind(db, 1, Mysql_config),
       {_, Encode} = lists:keyfind(encode, 1, Mysql_config),
       [Host, Port, User, Password, DB, Encode];
-    undefined -> throw(undefined)
+    undefined ->
+      throw(undefined)
   end.
 
 get_mongo_config(App) ->

@@ -22,9 +22,14 @@
 
 
 start(normal, []) ->
+  io:format("oh fuck0 ~n"),
   ping_gateway(),
+  io:format("oh fuck01 ~n"),
+  titan:init_db(server),
+  io:format("oh fuck02 ~n"),
   Tabs = [?ETS_SYSTEM_INFO, ?ETS_MONITOR_PID, ?ETS_STAT_SOCKET, ?ETS_STAT_DB],
   init_ets(Tabs),
+  io:format("oh fuck 1 ~n"),
   [Port, Node_id, _Accept_num, _Max_connection] = config:get_tcp_listener(server),
   [Ip] = config:get_tcp_listener_ip(server),
   Log_level = config:get_log_level(server),
@@ -34,6 +39,8 @@ start(normal, []) ->
   ti_server:start(
     [Ip, tool:to_integer(Port), tool:to_integer(Node_id)]
   ),
+%%
+  io:format("oh fuck ~n"),
   {ok, SupPid}.
 
 
