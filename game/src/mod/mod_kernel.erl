@@ -100,5 +100,5 @@ reload_base_data(goods) ->
 
 %% 初始化ETS表
 init_ets() ->
-  ets:new(?ETS_BASE_GOODS,[{keypos, #ets_base_goods.goods_id}, named_table, public, set ,?ETSRC, ?ETSWC]),
+  ets:new(?ETS_BASE_GOODS,[{keypos, #base_goods.goods_id}, named_table, public, set ,?ETSRC, ?ETSWC]),
   ok.

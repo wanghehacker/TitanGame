@@ -311,7 +311,7 @@ get_and_call_server(State) ->
     [] ->
       [];
     Server ->
-      F = fun([Id, Ip, Port, Node, _]) ->
+      F = fun([Id, Ip, Port, Node,_, _]) ->
         Node1 = list_to_atom(binary_to_list(Node)),
         Ip1 = binary_to_list(Ip),
         case Id /= State#state.id of  % 自己不写入和不通知

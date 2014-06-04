@@ -149,7 +149,8 @@ init_mysql(App) ->
   [Host, Port, User, Password, DB, Encode] = config:get_mysql_config(App),
   mysql:start_link(?DB_POOL, Host, Port, User, Password, DB, fun(_, _, _, _) -> ok end, Encode),
   mysql:connect(?DB_POOL, Host, Port, User, Password, DB, Encode, true),
-  misc:write_system_info({self(), mysql}, mysql, {Host, Port, User, DB, Encode}),
+  misc:write_system_info({self(), mysql ,App}, mysql, {Host, Port, User, DB, Encode}),
+  io:format("database connected~n"),
   ok.
 
 %%mongo数据库连接初始化

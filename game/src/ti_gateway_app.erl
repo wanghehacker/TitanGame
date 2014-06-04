@@ -24,7 +24,7 @@ start(_StartType, _StartArgs) ->
   [Port, Node_id, _Acceptor_num, _Max_connections] = config:get_tcp_listener(gateway),
   [Ip] = config:get_tcp_listener_ip(gateway),
   Log_level = config:get_log_level(gateway),
-  %% io:format("~p~n",[Log_level]),
+%%   io:format("~p~n",[Log_level]),
   loglevel:set(tool:to_integer(Log_level)),
 
   titan:init_db(gateway),
