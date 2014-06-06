@@ -29,7 +29,7 @@ start_raw_server(Port, Fun, Max) ->
       Pid = spawn(fun() -> code_start(Self, Port, Fun, Max) end),
       receive
         {Pid, ok} ->
-          io:format("register~p~n", [Name]),
+          io:format("register ~p~n", [Name]),
           register(Name, Pid);
         {Pid, Error} ->
           Error
@@ -130,11 +130,11 @@ start_accept(Listen, Fun) ->
 start_child(Parent, Listen, Fun) ->
   case gen_tcp:accept(Listen) of
     {ok, Socket} ->
-      io:format("accept a socket"),
+      io:format("accept a socket~n"),
       Parent ! {istarted, self()},
       Fun(Socket);
     _Other ->
-      io:format("accept a socket false"),
+      io:format("accept a socket false~n"),
       exit(oops)
   end.
 
