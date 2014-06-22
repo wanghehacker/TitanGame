@@ -137,8 +137,10 @@ code_change(_OldVsn, State, _Extra) ->
 
 %%发送要连接的IP和port到客户端，并关闭连接
 handoff(Socket) ->
+  io:format("begin handoff~n"),
   case gen_tcp:recv(Socket, ?HEADER_LENGTH) of
     {ok, <<_Len:32, 60000:16>>} ->
+      io:format("1111~n"),
       %%延时允许客户端连接
       [{_, _, InitTime, AsyncTime}] = ets:match_object(gatewayinit, #gatewayinit{id = 1, _ = '_'}),
       Now = util:unixtime(),
@@ -153,6 +155,7 @@ handoff(Socket) ->
           gen_tcp:close(Socket)
       end;
     {ok, <<Len:32, 60001:16>>} ->
+      io:format("2222~n"),
       BodyLen = Len - ?HEADER_LENGTH,
       case gen_tcp:recv(Socket, BodyLen, 3000) of
         {ok, <<Bin/binary>>} ->
@@ -164,6 +167,7 @@ handoff(Socket) ->
           gen_tcp:close(Socket)
       end;
     {ok, Packet} ->
+      io:format("~p~n",[Packet]),
       P = tool:to_list(Packet),
       P1 = string:left(P, 4),
       if (P1 == "GET " orelse P1 == "POST") ->
@@ -174,6 +178,7 @@ handoff(Socket) ->
           gen_tcp:close(Socket)
       end;
     _Reason ->
+      io:format("socket close~n"),
       gen_tcp:close(Socket)
   end.
 
